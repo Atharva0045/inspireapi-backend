@@ -49,7 +49,3 @@ PORT=5000
 MONGODB_URI=mongodb://localhost:27017/quotesapi
 NODE_ENV=development
 ```
-
-## License
-
-This project is licensed under the MIT License.
