@@ -7,9 +7,8 @@ on:
       - development
 
 jobs:
-  # Install dependencies once and cache them
   install-deps:
-    name: Install Service Dependencies
+    name: Install & Cache Dependencies
     runs-on: ubuntu-latest
     outputs:
       cache-hit: ${{ steps.cache-deps.outputs.cache-hit }}
@@ -18,15 +17,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Cache node modules
+      - name: Cache npm
         id: cache-deps
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - run: npm install
+      - run: npm ci
 
   jest-tests:
     name: Jest CI Tests
@@ -41,7 +40,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - run: npm ci
       - run: npm run test:ci
 
   prettier-check:
@@ -57,7 +59,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - run: npm ci
       - run: npm run format:check
 
   eslint-check:
@@ -73,5 +78,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - run: npm ci
       - run: npm run lint
