@@ -21,22 +21,24 @@ This repository contains the backend service for InspireAPI, a MERN stack applic
 ### Quick Start
 
 1. Clone the repository:
-    ```bash
-    git clone https://github.com/your-username/inspireapi-backend.git
-    cd inspireapi-backend
-    ```
+
+   ```bash
+   git clone https://github.com/your-username/inspireapi-backend.git
+   cd inspireapi-backend
+   ```
 
 2. Build and start using Docker:
-    ```bash
-    docker build -t inspireapi-backend -f docker/dockerfile.backend .
-    docker run -p 5000:5000 --env-file .env inspireapi-backend
-    ```
+
+   ```bash
+   docker build -t inspireapi-backend -f docker/dockerfile.backend .
+   docker run -p 5000:5000 --env-file .env inspireapi-backend
+   ```
 
 3. For development, install dependencies and run locally:
-    ```bash
-    npm install
-    npm run dev
-    ```
+   ```bash
+   npm install
+   npm run dev
+   ```
 
 ## Configuration
 

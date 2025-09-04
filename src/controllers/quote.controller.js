@@ -72,7 +72,7 @@ class QuotesController {
   async getQuoteById(req, res, next) {
     try {
       const quote = await Quote.findById(req.params.id).select('-__v');
-      
+
       if (!quote) {
         return res.status(404).json({
           success: false,
