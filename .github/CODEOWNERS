@@ -1,0 +1,34 @@
+# This is a CODEOWNERS file for the quotes-app-backend repository
+
+# Each line is a file pattern followed by one or more owners.
+
+# Default owners for everything in the repo
+
+- @Atharva0045
+
+# Backend source code
+/src/ @Atharva0045
+/src/controllers/ @Atharva0045
+/src/models/ @Atharva0045
+/src/routes/ @Atharva0045
+/src/middlewares/ @Atharva0045
+/src/utils/ @Atharva0045
+
+# Test files
+/**tests**/ @Atharva0045
+
+# Configuration files
+_.json @Atharva0045
+_.js @Atharva0045
+.env.example @Atharva0045
+
+# Docker related files
+/docker/ @Atharva0045
+Dockerfile* @Atharva0045
+docker-compose*.yml @Atharva0045
+
+# GitHub specific files
+/.github/ @Atharva0045
+
+# Documentation
+\*.md @Atharva0045
