@@ -26,25 +26,21 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true
+  })
+);
 
 // Parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Logging
-app.use(morgan('combined', { stream: { write: message => logger.info(message) } }));
-
-// Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quotesapi', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => logger.info('Connected to MongoDB'))
-.catch(err => logger.error('MongoDB connection error:', err));
+app.use(
+  morgan('combined', { stream: { write: message => logger.info(message) } })
+);
 
 // Routes
 app.use('/api/quotes', quotesRoutes);
@@ -61,9 +57,25 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-});
+// Only connect to database and start server if this file is run directly
+if (require.main === module) {
+  // Database connection
+  mongoose
+    .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/quotesapi', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    })
+    .then(() => logger.info('Connected to MongoDB'))
+    .catch(err => logger.error('MongoDB connection error:', err));
 
-module.exports = app;
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    logger.info(
+      `Server running on port ${PORT} in ${
+        process.env.NODE_ENV || 'development'
+      } mode`
+    );
+  });
+}
+
+module.exports = { app, mongoose };
