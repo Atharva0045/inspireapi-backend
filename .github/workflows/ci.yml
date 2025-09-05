@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-      
+
       # Cache node_modules to share across all jobs
       - name: Cache node modules
         id: cache-deps
@@ -24,7 +24,7 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-      
+
       - name: Install dependencies
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: npm ci
@@ -35,18 +35,18 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+
       # Restore cached node_modules
       - name: Restore node modules
         uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-      
+
       - run: npm run test:ci
 
   prettier-check:
@@ -55,18 +55,18 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+
       # Restore cached node_modules
       - name: Restore node modules
         uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-      
+
       - run: npm run format:check
 
   eslint-check:
@@ -75,16 +75,16 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: actions/setup-node@v4
         with:
           node-version: '18'
-      
+
       # Restore cached node_modules
       - name: Restore node modules
         uses: actions/cache@v3
         with:
           path: node_modules
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-      
+
       - run: npm run lint
