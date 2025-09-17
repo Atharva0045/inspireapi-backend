@@ -3,7 +3,7 @@ name: CD-Staging-Docker-Bulletproof
 on:
   push:
     branches:
-      - develop
+      - development
 
 jobs:
   deploy:
