@@ -36,18 +36,15 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
         env:
-          IMAGE_TAG: ${{ github.sha }}
+          GITHUB_SHA: ${{ github.sha }}
         with:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: 22
-          env:
-            GITHUB_COMMIT_SHA: ${{ github.sha }}
-          envs: GITHUB_COMMIT_SHA
           script: |
             #!/bin/bash
-            IMAGE_TAG=${GITHUB_COMMIT_SHA::7}
+            IMAGE_TAG=${GITHUB_SHA::7}
             cd /var/www/backend
 
             # Stop old container if exists
