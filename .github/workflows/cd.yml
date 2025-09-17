@@ -18,7 +18,7 @@ jobs:
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -58,7 +58,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: staging
-
+    
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.0
@@ -71,30 +71,30 @@ jobs:
           script_stop: true
           script: |
             set -e  # Exit on any error
-
+            
             # Extract image tag from the build job
             IMAGE_TAG="${{ needs.build.outputs.image-tag }}"
             echo "Deploying image: $IMAGE_TAG"
-
+            
             # Navigate to deployment directory
             cd /var/www/backend
-
+            
             # Create backup of current state
             BACKUP_CONTAINER="backend-staging-backup-$(date +%s)"
             if docker ps -a --format 'table {{.Names}}' | grep -q "^${{ env.CONTAINER_NAME }}$"; then
               echo "Creating backup of current container..."
               docker commit ${{ env.CONTAINER_NAME }} $BACKUP_CONTAINER || true
             fi
-
+            
             # Pull the new image
             echo "Pulling new image..."
             docker pull $IMAGE_TAG
-
+            
             # Stop and remove old container
             echo "Stopping old container..."
             docker stop ${{ env.CONTAINER_NAME }} || true
             docker rm ${{ env.CONTAINER_NAME }} || true
-
+            
             # Start new container with health check
             echo "Starting new container..."
             docker run -d \
@@ -111,12 +111,12 @@ jobs:
               --log-opt max-size=10m \
               --log-opt max-file=3 \
               $IMAGE_TAG
-
+            
             # Wait for container to be healthy
             echo "Waiting for health check..."
             RETRY_COUNT=0
             MAX_RETRIES=12
-
+            
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               HEALTH_STATUS=$(docker inspect --format='{{.State.Health.Status}}' ${{ env.CONTAINER_NAME }} 2>/dev/null || echo "none")
               
@@ -132,7 +132,7 @@ jobs:
                 RETRY_COUNT=$((RETRY_COUNT + 1))
               fi
             done
-
+            
             if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
               echo "❌ Health check timeout - rolling back!"
               
@@ -153,27 +153,27 @@ jobs:
               
               exit 1
             fi
-
+            
             # External health check
             echo "Performing external health check..."
             if ! curl -f -s --max-time 10 http://localhost:${{ env.PORT }}/health > /dev/null; then
               echo "❌ External health check failed!"
               exit 1
             fi
-
+            
             echo "✅ Deployment successful!"
-
+            
             # Cleanup old images (keep last 3)
             echo "Cleaning up old images..."
             docker images ${{ env.IMAGE_NAME }} --format "table {{.Repository}}:{{.Tag}}\t{{.CreatedAt}}" | \
               tail -n +2 | sort -k2 -r | tail -n +4 | awk '{print $1}' | \
               xargs -r docker rmi || true
-
+            
             # Clean up backup containers older than 24 hours
             docker ps -a --filter "name=backend-staging-backup-" --format "{{.Names}}\t{{.CreatedAt}}" | \
               awk '$2 " " $3 " " $4 " " $5 " " $6 < "'$(date -d '24 hours ago' '+%Y-%m-%d %H:%M:%S')'" {print $1}' | \
               xargs -r docker rm || true
-
+            
             # General cleanup
             docker system prune -f --volumes || true
 
@@ -181,10 +181,10 @@ jobs:
     needs: [build, deploy]
     runs-on: ubuntu-latest
     if: always()
-
+    
     steps:
       - name: Notify deployment status
-        if: contains(secrets, 'SLACK_WEBHOOK_URL') || contains(secrets, 'DISCORD_WEBHOOK_URL')
+        if: secrets.SLACK_WEBHOOK_URL != '' || secrets.DISCORD_WEBHOOK_URL != ''
         run: |
           if [ "${{ needs.deploy.result }}" == "success" ]; then
             STATUS="✅ SUCCESS"
@@ -195,7 +195,7 @@ jobs:
             COLOR="danger"
             MESSAGE="Staging deployment failed"
           fi
-
+          
           # Add webhook notifications here if needed
           echo "Deployment Status: $STATUS"
           echo "Message: $MESSAGE"
