@@ -58,4 +58,4 @@ jobs:
             fi
 
             # Cleanup old images
-            docker images -q | grep -vFf <(docker ps -a --format '{{.Image}}' | sort | uniq)
+            docker images --format '{{.Repository}}:{{.Tag}}' | grep -vxFf <(docker ps --format '{{.Image}}' | sort | uniq) | xargs -r docker rmi
