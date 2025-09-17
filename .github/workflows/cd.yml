@@ -47,23 +47,15 @@ jobs:
             # Stop old container if exists
             docker rm -f backend-staging || true
 
-            # Pull latest SHA-tagged image
-            docker pull atharva045/inspireapi:$IMAGE_TAG
-
-            # Run new container
-            docker run -d \
-              --name backend-staging \
-              -p 5000:5000 \
-              --env-file /var/www/backend/.env \
-              atharva045/inspireapi:$IMAGE_TAG
+            # Run new container directly
+            docker run -d --name backend-staging -p 5000:5000 --env-file /var/www/backend/.env atharva045/inspireapi:$IMAGE_TAG
 
             # Health check (ping port)
             sleep 5
             if ! curl -s http://localhost:5000/ > /dev/null; then
               echo "Deployment failed, rolling back!"
               docker rm -f backend-staging || true
-              # Optionally, rollback to a previous SHA tag if you store it
             fi
 
             # Cleanup old images
-            docker image prune -f
+            docker images -q | grep -vFf <(docker ps -a --format '{{.Image}}' | sort | uniq)
