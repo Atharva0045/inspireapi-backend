@@ -40,9 +40,11 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: 22
+          env:
+            IMAGE_TAG: ${{ github.sha }}
           script: |
             #!/bin/bash
-            IMAGE_TAG=${GITHUB_SHA::7}
+            IMAGE_TAG=${IMAGE_TAG::7}
             cd /var/www/backend
 
             # Stop old container if exists
