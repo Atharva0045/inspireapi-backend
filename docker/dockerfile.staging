@@ -1,0 +1,34 @@
+# Build Stage (staging)
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY ../package*.json ./
+
+# Install dependencies and generate lockfile inside Docker
+RUN npm ci --omit=dev
+
+# Copy source code
+COPY ../src/ ./
+
+# Staging Stage
+FROM node:20-alpine AS staging
+
+WORKDIR /app
+
+# Copy built app and node_modules from builder
+COPY --from=builder /app ./
+
+# Environment
+ENV NODE_ENV=staging
+
+# Expose port 5000 for staging
+EXPOSE 5000
+
+# Add healthcheck for container
+HEALTHCHECK --interval=15s --timeout=3s --retries=3 \
+  CMD curl -f http://localhost:5000/health || exit 1
+
+# Start server
+CMD ["node", "server.js"]
