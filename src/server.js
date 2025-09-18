@@ -54,8 +54,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.get("/dummy", (req, res) => {
-  res.json({ message: "Hello, I’m your dummy endpoint 🚀" });
+app.get('/dummy', (req, res) => {
+  res.json({ message: 'Hello, I’m your dummy endpoint 🚀' });
 });
 
 // Error handling middleware
